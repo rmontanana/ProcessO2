@@ -9,7 +9,7 @@ GPLv3 License
 
 ## Setup
 
-Dowload source:
+Dowload source
 
 ```bash
 git clone git@bitbucket.org:rmontanana/ProcessO2.git
