@@ -9,15 +9,15 @@ GPLv3 License
 
 ## Setup
 
-Dowload source
+### Dowload source
 
 ```bash
 git clone git@bitbucket.org:rmontanana/ProcessO2.git
 ```
 
-setup Python virtual environment
+### Setup Python virtual environment
 
-```Python
+```bash
 cd ProcessO2
 # setup Python virtual environment
 python3 -m venv venv
@@ -40,7 +40,7 @@ Once you have in a folder you only have to tell the class where are them located
 
 ## Run sample
 
-```Python
+```bash
 python main.py
 ```
 
@@ -48,6 +48,6 @@ Should show information of your SpO2
 
 ## Testing
 
-```Python
+```bash
 python -m unittest tests/ProcessO2_Test.py
 ````
