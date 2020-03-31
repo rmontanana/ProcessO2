@@ -18,8 +18,9 @@ class ProcessO2:
     config_file = 'config.cfg'
     header_csv = []
     header_output = []
+    null_values = False
 
-    def __init__(self, folder):
+    def __init__(self, folder, null_data=False):
         """
         Load the configuration file and initializes the headers
         """
@@ -28,6 +29,7 @@ class ProcessO2:
         parser.read(self.config_file)
         self.header_csv = [x for x in parser._sections['CSV_HEADER'].values()]
         self.header_output = [x for x in parser._sections['OUTPUT_HEADER'].values()]
+        self.null_values = null_data
 
     def get_headers(self):
         """
@@ -63,10 +65,13 @@ class ProcessO2:
     def get_duplicated_files(self):
         """
         Return a list of files with duplicated data
+        @return: list
         """
+        result = []
         for file_name in self.files():
             num = self.check_duplicated_data(file_name)
-            print(f"File: [{file_name}] #headers: [{num}]")
+            result.append(f"File: [{file_name}] #headers: [{num}]")
+        return result
 
     def files(self):
         """
@@ -104,20 +109,21 @@ class ProcessO2:
         @return: DataFrame
         """
         source = self.get_file_contents(file_name)
-        salida = []
+        output = []
         content = csv.DictReader(io.StringIO(source), fieldnames=self.header_csv)
         next(content)
         for row in content:
             line = [x for x in row.values()]
             line[0] = self.process_date(line[0])
-            # añade línea a la salida
-            salida.append(line)
+            # add line to output
+            output.append(line)
         # Change data types and remove null values (come as 255)
         num_type, null_value = ('int32', 255)
-        result = pd.DataFrame(salida, columns=self.header_output, dtype=num_type)
+        result = pd.DataFrame(output, columns=self.header_output, dtype=num_type)
         columns_to_change = self.header_output.copy()
         del columns_to_change[0]  # Remove the Time column  
         columns = {x: num_type for x in columns_to_change}
         columns[self.header_output[0]] = 'datetime64[ns]'
-        result = result.replace(f"{null_value}", np.nan).dropna()
+        if not self.null_values:
+            result = result.replace(f"{null_value}", np.nan).dropna()
         return  result.astype(columns)

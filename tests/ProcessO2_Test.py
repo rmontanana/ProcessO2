@@ -1,7 +1,7 @@
 import unittest
 from ProcessO2 import ProcessO2
 import pandas as pd
-from datetime import datetime
+import datetime
 import configparser
 
 class ProcessO2_Test(unittest.TestCase):
@@ -9,7 +9,7 @@ class ProcessO2_Test(unittest.TestCase):
     config_file = 'config.cfg'
     header_csv = []
     header_output = []
-    files = ['tests/testdir/example2.csv', 'tests/testdir/example1.csv']
+    files = ['tests/testdir/example1.csv', 'tests/testdir/example2.csv']
     model = None
 
     def __init__(self, *args, **kwargs):
@@ -30,22 +30,38 @@ class ProcessO2_Test(unittest.TestCase):
         self.assertEqual(self.header_csv, head_csv)
         self.assertEqual(self.header_output, head_output)
     
-    def data_example1(self):
-        first = datetime(2020, 3, 27, 2, 29, 16)
-        second = datetime(2020, 3, 27, 2, 29, 20)
-        data = [[first, 96, 77, 0, 0], [second, 96, 77, 0, 0]]
+    def data_example1(self, null_data=False):
+        first = datetime.datetime(2020, 3, 27, 2, 29, 16)
+        second = first + datetime.timedelta(seconds=4)
+        third = first + datetime.timedelta(seconds=8)
+        data =  [[first, 96, 77, 0, 0], [second, 96, 77, 0, 0]]
+        if null_data:
+            data.append([third, 255, 77, 0, 0])
         return pd.DataFrame(data, columns=self.header_output)
     
-    def data_example2(self):
-        first = datetime(2020, 3, 28, 14, 23, 45)
-        second = datetime(2020, 3, 28, 14, 23, 49)
+    def data_example2(self, null_data=False):
+        first = datetime.datetime(2020, 3, 28, 14, 23, 45)
+        second = first + datetime.timedelta(seconds=4)
+        third = first + datetime.timedelta(seconds=8)
         data = [[first, 94, 83, 33, 0], [second, 94, 87, 35, 0]]
+        if null_data:
+            data.append([third, 255, 87, 35, 0])
         return pd.DataFrame(data, columns=self.header_output)
 
     def test_loads_correct_data_from_file(self):
-        expected = self.data_example1()
-        computed = self.model.load_file(self.files[1])
-        self.compare(expected, computed)
+        data = (self.data_example1(), self.data_example2())
+        for idx, file in enumerate(data):
+            expected = file
+            computed = self.model.load_file(self.files[idx])
+            self.compare(expected, computed)
+
+    def test_loads_correct_data_with_nulls_from_file(self):
+        model = ProcessO2(self.folder, null_data=True)
+        data = (self.data_example1(null_data=True), self.data_example2(null_data=True))
+        for idx, file in enumerate(data):
+            expected = file
+            computed = model.load_file(self.files[idx])
+            self.compare(expected, computed)
 
     def compare(self, expected, computed):
         # sort DataFrames to make a more robust the comparison and create a deterministic result
@@ -55,11 +71,23 @@ class ProcessO2_Test(unittest.TestCase):
         # Compare two DataFrames
         for col in expected.columns:
             test = expected[col].values == computed[col].values
-            if not test.all():
+            result = test.all()
+            if not result:
                 print(expected[col].values, ' != ', computed[col].values)
-            self.assertTrue(test.all())
+                print("=============Expected=================")
+                print(expected.head())
+                print("=============Computed=================")
+                print(computed.head())
+                print("======================================")
+            self.assertTrue(result)
 
     def test_loads_correct_data_from_folder(self):
         expected = pd.concat([self.data_example1(), self.data_example2()])
         computed = self.model.get_all_data()
+        self.compare(expected, computed)
+    
+    def test_loads_correct_data_with_nulls_from_folder(self):
+        model = ProcessO2(self.folder, null_data=True)
+        expected = pd.concat([self.data_example1(null_data=True), self.data_example2(null_data=True)])
+        computed = model.get_all_data()
         self.compare(expected, computed)
