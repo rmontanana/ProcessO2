@@ -29,16 +29,37 @@ class ProcessO2_Test(unittest.TestCase):
         head_csv, head_output = self.model.get_headers()
         self.assertEqual(self.header_csv, head_csv)
         self.assertEqual(self.header_output, head_output)
-
-    def test_loads_correct_data_from_file(self):
+    
+    def data_example1(self):
         first = datetime(2020, 3, 27, 2, 29, 16)
         second = datetime(2020, 3, 27, 2, 29, 20)
         data = [[first, 96, 77, 0, 0], [second, 96, 77, 0, 0]]
-        output = pd.DataFrame(data, columns=self.header_output)
+        return pd.DataFrame(data, columns=self.header_output)
+    
+    def data_example2(self):
+        first = datetime(2020, 3, 28, 14, 23, 45)
+        second = datetime(2020, 3, 28, 14, 23, 49)
+        data = [[first, 94, 83, 33, 0], [second, 94, 87, 35, 0]]
+        return pd.DataFrame(data, columns=self.header_output)
+
+    def test_loads_correct_data_from_file(self):
+        expected = self.data_example1()
         computed = self.model.load_file(self.files[1])
-        # Compare the data
-        for col in output.columns:
-            test = output[col].values == computed[col].values
+        self.compare(expected, computed)
+
+    def compare(self, expected, computed):
+        # sort DataFrames to make a more robust the comparison and create a deterministic result
+        col = self.header_output[0]
+        expected.sort_values(by=[col], inplace=True)
+        computed.sort_values(by=[col], inplace=True)
+        # Compare two DataFrames
+        for col in expected.columns:
+            test = expected[col].values == computed[col].values
             if not test.all():
-                print(output[col].values, ' != ', computed[col].values)
+                print(expected[col].values, ' != ', computed[col].values)
             self.assertTrue(test.all())
+
+    def test_loads_correct_data_from_folder(self):
+        expected = pd.concat([self.data_example1(), self.data_example2()])
+        computed = self.model.get_all_data()
+        self.compare(expected, computed)
