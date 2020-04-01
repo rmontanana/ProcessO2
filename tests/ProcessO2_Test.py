@@ -91,3 +91,8 @@ class ProcessO2_Test(unittest.TestCase):
         expected = pd.concat([self.data_example1(null_data=True), self.data_example2(null_data=True)])
         computed = model.get_all_data()
         self.compare(expected, computed)
+    
+    def test_that_no_1970_dates_are_left(self):
+        data = self.model.get_all_data()
+        records = data.FechaHora.between(pd.to_datetime('12/12/1969'), pd.to_datetime('12/12/2019'))
+        self.assertTrue(not any(records))

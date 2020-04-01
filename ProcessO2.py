@@ -101,6 +101,9 @@ class ProcessO2:
         """
         # Remove special char ', ' in date
         real_date = input_date[0:15] + ' ' + input_date[-4:]
+        if input_date[-4:] == '1970':
+            # Filter 1970 dates generated the daylight saving day keeping only the time            
+            real_date = real_date[0:8] + ' Mar 28 2020'
         return datetime.strptime(real_date, '%H:%M:%S %b %d %Y')
 
     def load_file(self, file_name):
