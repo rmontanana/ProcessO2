@@ -19,6 +19,7 @@ class ProcessO2:
     header_csv = []
     header_output = []
     null_values = False
+    daylight = ''
 
     def __init__(self, folder, null_data=False):
         """
@@ -30,6 +31,7 @@ class ProcessO2:
         self.header_csv = [x for x in parser._sections['CSV_HEADER'].values()]
         self.header_output = [x for x in parser._sections['OUTPUT_HEADER'].values()]
         self.null_values = null_data
+        self.daylight = parser._sections['MISC']['daylight_saving']
 
     def get_headers(self):
         """
@@ -92,18 +94,17 @@ class ProcessO2:
                 res = pd.concat([res, self.load_file(file_name)])
         return res
     
-    
     def process_date(self, input_date):
         """
-        Extract a datetime object from the Time field received removing special char
+        Extract a datetime object from the Time field received removing special char and 1970's dates
         @param: string input_data
         @return: datetime object   
         """
         # Remove special char ', ' in date
         real_date = input_date[0:15] + ' ' + input_date[-4:]
         if input_date[-4:] == '1970':
-            # Filter 1970 dates generated the daylight saving day keeping only the time            
-            real_date = real_date[0:8] + ' Mar 28 2020'
+            # Filter 1970 dates generated on the daylight saving day keeping only the time            
+            real_date = real_date[0:8] + ' ' + self.daylight
         return datetime.strptime(real_date, '%H:%M:%S %b %d %Y')
 
     def load_file(self, file_name):
