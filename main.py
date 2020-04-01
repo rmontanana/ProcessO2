@@ -1,9 +1,8 @@
 from ProcessO2 import ProcessO2
 
+model = ProcessO2('../O2Measures/*.csv', null_data=True)
 print("========= Files with duplicated data ===========")
 [print(i) for i in model.get_duplicated_files()]
-
-model = ProcessO2('../MedicionesO2/*.csv', null_data=True)
 data = model.get_all_data()
 print("================= With Null Data ===============")
 print(data.head())
