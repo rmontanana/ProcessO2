@@ -1,8 +1,11 @@
-import unittest
-from ProcessO2 import ProcessO2
-import pandas as pd
-import datetime
 import configparser
+import datetime
+import unittest
+
+import pandas as pd
+
+from ProcessO2 import ProcessO2
+
 
 class ProcessO2_Test(unittest.TestCase):
     folder = 'tests/testdir/*.csv'
@@ -31,7 +34,7 @@ class ProcessO2_Test(unittest.TestCase):
         self.assertEqual(self.header_output, head_output)
     
     def data_example1(self, null_data=False):
-        first = datetime.datetime(2020, 3, 27, 2, 29, 16)
+        first = datetime.datetime(2020, 3, 28, 2, 29, 16)
         second = first + datetime.timedelta(seconds=4)
         third = first + datetime.timedelta(seconds=8)
         data =  [[first, 96, 77, 0, 0], [second, 96, 77, 0, 0]]
@@ -40,7 +43,7 @@ class ProcessO2_Test(unittest.TestCase):
         return pd.DataFrame(data, columns=self.header_output)
     
     def data_example2(self, null_data=False):
-        first = datetime.datetime(2020, 3, 28, 14, 23, 45)
+        first = datetime.datetime(2020, 3, 29, 14, 23, 45)
         second = first + datetime.timedelta(seconds=4)
         third = first + datetime.timedelta(seconds=8)
         data = [[first, 94, 83, 33, 0], [second, 94, 87, 35, 0]]

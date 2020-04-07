@@ -49,5 +49,5 @@ Should show information of your SpO2
 ## Testing
 
 ```bash
-python -m unittest tests/ProcessO2_Test.py
+python -m unittest tests/*.py
 ````

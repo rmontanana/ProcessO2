@@ -1,17 +1,19 @@
-'''
+"""
 __author__ = "Ricardo Montañana Gómez"
 __copyright__ = "Copyright 2020, Ricardo Montañana Gómez"
 __license__ = "GPLv3"
 __version__ = "1.0"
 Process folder with O2 measures in csv files
-'''
-import glob
-import csv
-import pandas as pd
-import numpy as np
-from datetime import datetime
+"""
 import configparser
+import csv
+import glob
 import io
+from datetime import datetime
+
+import numpy as np
+import pandas as pd
+
 
 class ProcessO2:
     folder = ''  # Folder with csv data files
@@ -48,7 +50,7 @@ class ProcessO2:
         """
         with open(file_name) as f:
             return f.read().count(self.header_csv[0]) > 1
-    
+
     def get_file_contents(self, file_name):
         """
         Gets the file content removing possibly duplicated content
@@ -63,7 +65,7 @@ class ProcessO2:
                 return content[0:position]
             else:
                 return f.read()
-        
+
     def get_duplicated_files(self):
         """
         Return a list of files with duplicated data
@@ -80,7 +82,7 @@ class ProcessO2:
         Return list of files in folder
         """
         return glob.glob(self.folder)
-    
+
     def get_all_data(self):
         """
         Return a DataFrame with all the data in the folder
@@ -93,7 +95,7 @@ class ProcessO2:
             else:
                 res = pd.concat([res, self.load_file(file_name)])
         return res
-    
+
     def process_date(self, input_date):
         """
         Extract a datetime object from the Time field received removing special char and 1970's dates
@@ -130,4 +132,4 @@ class ProcessO2:
         columns[self.header_output[0]] = 'datetime64[ns]'
         if not self.null_values:
             result = result.replace(f"{null_value}", np.nan).dropna()
-        return  result.astype(columns)
+        return result.astype(columns)

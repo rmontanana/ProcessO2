@@ -1,10 +1,13 @@
-import unittest
-from ProcessO2 import ProcessO2
-from ExtractO2 import ExtractO2
-import pandas as pd
-from io import StringIO
-import datetime
 import configparser
+import datetime
+import unittest
+from io import StringIO
+
+import pandas as pd
+
+from ExtractO2 import ExtractO2
+from ProcessO2 import ProcessO2
+
 
 class ExtractO2_Test(unittest.TestCase):
     folder = 'tests/testdir/*.csv'
@@ -41,7 +44,7 @@ class ExtractO2_Test(unittest.TestCase):
                 print(computed.head())
                 print("======================================")
             self.assertTrue(result)
-    
+
     def build_df(self, string):
         return pd.read_csv(StringIO(string))
 
@@ -50,10 +53,10 @@ class ExtractO2_Test(unittest.TestCase):
         computed_days, computed_nights = self.model.compute_days_nights()
         real_nights = self.build_df("""FechaHora,SpO2(%),Pulso(lpm),Movimiento,Vibración
                                             2020-03-28 02:29:16,       96,          77,        0,          0
-                                            2020-03-28 02:29:20,       96,         77,         0,          0""" )
+                                            2020-03-28 02:29:20,       96,         77,         0,          0""")
         real_days = pd.read_csv(StringIO("""FechaHora,SpO2(%),Pulso(lpm),Movimiento,Vibración
                                             2020-03-29 14:23:45,       94,          83,          33,          0
-                                            2020-03-29 14:23:49,       94,          87,          35,          0""" ))
+                                            2020-03-29 14:23:49,       94,          87,          35,          0"""))
         self.compare(real_days.set_index(col), computed_days)
         self.compare(real_nights.set_index(col), computed_nights)
 
@@ -65,7 +68,7 @@ class ExtractO2_Test(unittest.TestCase):
                                 2020-03-28,2.0,96.0,0.0,96.0,96.0,96.0,96.0,96.0
                                 2020-03-29,2.0,94.0,0.0,94.0,94.0,94.0,94.0,94.0""").set_index(col_index)
         self.compare(expected, computed)
-    
+
     def test_dates_info(self):
         c_ini, c_end, c_days = self.model.dates_info()
         e_ini = datetime.date(2020, 3, 28).strftime(self.date_format)
@@ -81,5 +84,3 @@ class ExtractO2_Test(unittest.TestCase):
         expected_records = [4, 2, 2]
         for expected, computed in zip(expected_records, computed_records):
             self.assertEqual(expected, computed)
-
-
